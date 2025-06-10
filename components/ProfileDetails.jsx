@@ -1,11 +1,31 @@
+import { useEffect, useState } from "react";
+import SidebarPanel from "@/components/SidebarPanel";
 
 export default function ProfileDetails() {
+
+    const [user,setUser] = useState(null);
+
+	useEffect(() => {
+		const fetchData = async () => {
+			const res = await fetch('/api/getuser');
+			const data = await res.json();
+            setUser(data);
+		};
+		fetchData();
+	},[]);
+
+
     return (
-        <div className="bg-gray-100 text-gray-600 p-2 mt-4 rounded">
-        bschu<br />
-        Brendon Schumacker<br />
-        Data Analyst<br />
-        Recent Adds: 42<br />
-        </div>
+        <SidebarPanel>
+        {user ? (
+            <>
+            {user.username}<br />
+            {user.name}<br />
+            {user.job_title}<br />
+            </>
+        ) : (
+            <div>Loading...</div>
+        )}
+        </SidebarPanel>
     );
 }

@@ -1,8 +1,10 @@
 
+import SidebarPanel from "@/components/SidebarPanel";
+
 export default function AnimatedDecoratoin() {
     return (
-        <div className="bg-gray-100 text-gray-600 p-2 mt-4 rounded">
+        <SidebarPanel>
         moving stuff goes here
-        </div>
+        </SidebarPanel>
     );
 }
