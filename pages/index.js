@@ -66,7 +66,7 @@ const geistMono = Geist_Mono({
 
 export default function Home() {
 
-    const [data, setData] = useState([]);
+    const [tableData, setDataTable] = useState([]);
     const [activePanel, setActivePanel] = useState('dashboard');
     const [visibleCols, setVisible] = useState(["name","email"]);
     const [lineChartCols, setLineChartCols] = useState([]);
@@ -131,32 +131,32 @@ export default function Home() {
     }
 
 	const pieChartData = useMemo(() => {
-		if (data.length === 0 || pieChartCols.length !== 1) return [];
+		if (tableData.length === 0 || pieChartCols.length !== 1) return [];
 
 		const col = pieChartCols[0];
 		const counts = {};
 
-		data.forEach(row => {
+		tableData.forEach(row => {
 			const val = row[col];
 			counts[val] = (counts[val] || 0) + 1;
 		});
 
 		return Object.entries(counts).map(([name, value]) => ({ name, value }));
-	}, [data, pieChartCols]);
+	}, [tableData, pieChartCols]);
 
 	const barChartData = useMemo(() => {
-		if (data.length === 0 || barChartCols.length !== 1) return [];
+		if (tableData.length === 0 || barChartCols.length !== 1) return [];
 
 		const col = barChartCols[0];
 		const counts = {};
 
-		data.forEach(row => {
+		tableData.forEach(row => {
 			const val = row[col];
 			counts[val] = (counts[val] || 0) + 1;
 		});
 
 		return Object.entries(counts).map(([name, value]) => ({ name, value }));
-	}, [data, barChartCols]);
+	}, [tableData, barChartCols]);
 
     function toggleColumn(col) {
         setVisible(prev =>
@@ -165,16 +165,32 @@ export default function Home() {
         );
     }
 
+    const loadTable = async (filename) => {
+        try {
+            const res = await fetch(`/api/load-csv?name=${filename}`);
+            const json = await res.json();
+            setDataTable(json);
+            if (json.length > 0) {
+                setVisible(Object.keys(json[0]));
+            }
+        } catch (err) {
+            console.error('Failed to load data:', err);
+        }
+    };
+
     useEffect(() => {
-        fetch('/api/load-csv?name=medical.csv')
+        loadTable('ypsw1e35a01wk022dl7nqpvmp.csv');
+        /*
+        fetch('/api/load-csv?name=ypsw1e35a01wk022dl7nqpvmp.csv')
             .then((res) => res.json())
             .then((json) => {
-                setData(json);
+                setDataTable(json);
                 if (json.length > 0) {
                     setVisible(Object.keys(json[0]));
                 }
             })
             .catch((err) => console.error('Failed to load data:', err));
+        */
     }, []);
 
     useEffect(() => {
@@ -216,7 +232,7 @@ export default function Home() {
 
 					{/* Toolbar */}
 					<div className="pb-4">
-						<ToolbarPanel activePanel={activePanel} data={data} visibleCols={visibleCols} lineChartCols={lineChartCols} toggleLineChartCol={toggleLineChartCol} pieChartCols={pieChartCols} togglePieChartCol={togglePieChartCol} barChartCols={barChartCols} toggleBarChartCol={toggleBarChartCol} sumCols={sumCols} toggleSumCol={toggleSumCol} avgCols={avgCols} toggleAvgCol={toggleAvgCol} medianCols={medianCols} toggleMedianCol={toggleMedianCol} toggleColumn={toggleColumn} />
+						<ToolbarPanel activePanel={activePanel} data={tableData} visibleCols={visibleCols} lineChartCols={lineChartCols} toggleLineChartCol={toggleLineChartCol} pieChartCols={pieChartCols} togglePieChartCol={togglePieChartCol} barChartCols={barChartCols} toggleBarChartCol={toggleBarChartCol} sumCols={sumCols} toggleSumCol={toggleSumCol} avgCols={avgCols} toggleAvgCol={toggleAvgCol} medianCols={medianCols} toggleMedianCol={toggleMedianCol} toggleColumn={toggleColumn} />
 					</div>
 
                     {/* Data Display */}
@@ -224,10 +240,10 @@ export default function Home() {
 						<div className="p-4">
 							{activePanel == "dashboard" && (
 								<div className="overflow-auto" style={{ height: 'calc(100vh - 320px)' }}>
-								<MainDataTable data={data} visibleCols={visibleCols} />
+                                    <MainDataTable data={tableData} loadTable={loadTable} visibleCols={visibleCols} />
 								</div>
 							)}
-							{activePanel == "data" && <DataManager />}
+							{activePanel == "data" && <DataManager setActivePanel={setActivePanel} />}
 							{activePanel == "profile" && <Profile />}
 							{activePanel == "settings" && <Settings themes={themes} />}
 							{activePanel == "log" && <Log />}
@@ -238,7 +254,7 @@ export default function Home() {
 				<div className="pl-4 pr-4">
                 <div className="h-full border border-primary bg-base-300 text-base-content w-64 shrink-0 rounded p-4 shadow-xl">
 					<div className="overflow-auto" style={{ height: 'calc(100vh - 250px)' }}>
-					<RightSidebar data={data} lineChartCols={lineChartCols} pieChartCols={pieChartCols} barChartCols={barChartCols} sumCols={sumCols} avgCols={avgCols} medianCols={medianCols} />
+					<RightSidebar data={tableData} lineChartCols={lineChartCols} pieChartCols={pieChartCols} barChartCols={barChartCols} sumCols={sumCols} avgCols={avgCols} medianCols={medianCols} />
 					</div>
                 </div>
                 </div>
