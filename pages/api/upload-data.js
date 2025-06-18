@@ -36,28 +36,41 @@ export default async function handler(req, res) {
 		try {
 			const name = clean(fields.name?.[0]);
 			const notes = clean(fields.notes?.[0]);
-			const file = files.file[0];
-			const rawPath = file.filepath;
-			if (!rawPath) {
-				return res.status(400).json({ error: 'File path missing' });
-			}
-			const ext = path.extname(file.originalFilename).replace('.', '').toLowerCase();
-			await client.connect();
-			const insertResult = await client.query(
-				`INSERT INTO datasets (name, notes, source_type, source_path)
-				 VALUES ($1, $2, $3, $4) RETURNING id`,
-				[clean(name), clean(notes), [ext], ['placeholder']]
-			);
-			const newId = insertResult.rows[0].id;
-			const finalFilename = `table_${newId}.${ext}`;
-			const finalPath = path.join(process.cwd(), 'datafiles', finalFilename);
-			fs.renameSync(file.filepath, finalPath);
-			await client.query(
-				`UPDATE datasets SET source_path = $1 WHERE id = $2`,
-				[[finalFilename], newId]
-			);
-			await client.end();
-			res.status(200).json({ success: true });
+			const type = fields.type;
+            if (type == "file") {
+                const file = files.file[0];
+                const rawPath = file.filepath;
+                if (!rawPath) {
+                    return res.status(400).json({ error: 'File path missing' });
+                }
+                const ext = path.extname(file.originalFilename).replace('.', '').toLowerCase();
+                await client.connect();
+                const insertResult = await client.query(
+                    `INSERT INTO datasets (name, notes, source_type, source_path)
+                     VALUES ($1, $2, $3, $4) RETURNING id`,
+                    [clean(name), clean(notes), [ext], ['placeholder']]
+                );
+                const newId = insertResult.rows[0].id;
+                const finalFilename = `table_${newId}.${ext}`;
+                const finalPath = path.join(process.cwd(), 'datafiles', finalFilename);
+                fs.renameSync(file.filepath, finalPath);
+                await client.query(
+                    `UPDATE datasets SET source_path = $1 WHERE id = $2`,
+                    [[finalFilename], newId]
+                );
+                await client.end();
+                res.status(200).json({ success: true });
+            } else {
+                const table = clean(fields.table?.[0]);
+                await client.connect();
+                const insertResult = await client.query(
+                    `INSERT INTO datasets (name, notes, source_type, source_path)
+                     VALUES ($1, $2, $3, $4) RETURNING id`,
+                    [clean(name), clean(notes), ['sql'], [table]]
+                );
+                await client.end();
+                res.status(200).json({ success: true });
+            }
 		} catch (dbErr) {
 			console.error(dbErr);
 			res.status(500).json({ error: 'Database insert failed' });

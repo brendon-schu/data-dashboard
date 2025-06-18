@@ -167,7 +167,7 @@ export default function Home() {
 
     const loadTable = async (filename) => {
         try {
-            const res = await fetch(`/api/load-csv?name=${filename}`);
+            const res = await fetch(`/api/load-data?name=${filename}`);
             const json = await res.json();
             setDataTable(json);
             if (json.length > 0) {
