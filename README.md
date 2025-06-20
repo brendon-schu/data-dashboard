@@ -1,40 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# React + Next.js Data Dashboard (Demonstration Project)
 
-## Getting Started
+This is a full-stack **React + Next.js** dashboard application designed as both a **practice tool** and a **functional data management system**. It demonstrates real-world development skills including file handling, dynamic UI rendering, database operations, and stateful user interaction.
 
-First, run the development server:
+While it’s primarily a personal demo project, the system is fully usable and can serve as a foundation for real applications, admin panels, or future freelance work.
+
+---
+
+## 🛠️ Development Skills Demonstrated
+
+This project touches nearly every core aspect of professional React + Next.js development:
+
+- ✅ Functional components with dynamic props and conditional rendering
+- ✅ `useState`, `useEffect`, and state management patterns
+- ✅ Dynamic data-driven UI (sidebar tool toggles, dropdowns, toolbars)
+- ✅ Backend API routes using Next.js `/pages/api/`
+- ✅ File upload and download handling
+- ✅ PostgreSQL integration using `pg` client
+- ✅ File parsing and format conversion (CSV, JSON, SQL)
+- ✅ Programmatic table creation and SQL insert logic
+- ✅ Full CRUD (Create, Read, Update, Delete) dataset management
+- ✅ Authentication-ready setup with session demo user
+- ✅ Tailwind CSS with DaisyUI theme switching
+- ✅ Modular layout with left/right sidebars, toolbar, and main content panel
+- ✅ Conditional panel display based on user settings
+- ✅ Utility-first styling, responsive layout, and scroll isolation via `100vh`/`100vw`
+
+---
+
+## 📦 Features
+
+Here’s a complete list of currently implemented and planned features:
+
+### ✅ Core Pages
+
+- **Dashboard**: Central workspace with dynamic tool display based on dataset type
+- **Data Manager**: Upload, convert, export, and delete datasets (CSV, JSON, SQL)
+- **Profile**: Displays current user info (name, location, email, etc.)
+- **Settings**: Save display theme, reference links, ambient visual settings, and which panels to show
+- **Log**: (Planned) System activity log and audit trail
+
+### ✅ Dataset Features
+
+- Upload CSV or JSON files
+- Reference existing SQL tables by name
+- View datasets in all three formats (CSV, JSON, SQL)
+- Convert datasets between formats
+- Export CSV and JSON files directly
+- Auto-clean deletion (removes DB table + local files)
+- Internal PostgreSQL dataset registry with metadata: name, types, row count, file/table path
+
+### 🧩 Sidebar Panel System
+
+There are **12 sidebar panels** available, with **8 implemented** and **4 outstanding**:
+
+#### Implemented:
+- Dataset info preview
+- Aggregation tools (sum, mean, etc.)
+- Chart or graph panel
+- Dataset stats
+
+#### Remaining:
+1. 🎨 **Visual toy panel**: Fun animation (e.g., moving lines or cube)
+2. 🔗 **Reference links**: Pulled from settings and displayed as quick-access links
+3. 🧮 **Calculator panel**: Standard calculator utility (planned via library/plugin)
+4. 📜 **Audit log viewer**: Pull recent log entries once logging is implemented
+
+---
+
+## ⚙️ Setup (Demo Use)
+
+> Requires Node.js, npm, and PostgreSQL
+
+1. Clone the repo
+2. Create a `.env` file with your DB credentials
+3. Run the setup script to create required DB tables
+4. Start the server:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
-
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
