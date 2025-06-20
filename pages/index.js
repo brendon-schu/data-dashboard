@@ -165,9 +165,9 @@ export default function Home() {
         );
     }
 
-    const loadTable = async (filename) => {
+    const loadTable = async (id,num) => {
         try {
-            const res = await fetch(`/api/load-data?name=${filename}`);
+            const res = await fetch(`/api/load-data?id=${id}&num=${num}`);
             const json = await res.json();
             setDataTable(json);
             if (json.length > 0) {
@@ -179,18 +179,7 @@ export default function Home() {
     };
 
     useEffect(() => {
-        loadTable('ypsw1e35a01wk022dl7nqpvmp.csv');
-        /*
-        fetch('/api/load-csv?name=ypsw1e35a01wk022dl7nqpvmp.csv')
-            .then((res) => res.json())
-            .then((json) => {
-                setDataTable(json);
-                if (json.length > 0) {
-                    setVisible(Object.keys(json[0]));
-                }
-            })
-            .catch((err) => console.error('Failed to load data:', err));
-        */
+        loadTable(0,0);
     }, []);
 
     useEffect(() => {

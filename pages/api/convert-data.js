@@ -63,12 +63,12 @@ export default async function handler(req, res) {
 		} else if (type === 'sql') {
 			const columns = Object.keys(rawData[0]);
 			const tableName = baseName.replace(/[^a-zA-Z0-9_]/g, '_');
-			const createQuery = `CREATE TABLE IF NOT EXISTS ${tableName} (${columns.map(c => `${c} TEXT`).join(', ')});`;
+            const createQuery = `CREATE TABLE IF NOT EXISTS "${tableName}" (${columns.map(c => `"${c}" TEXT`).join(', ')});`;
 			await client.query(createQuery);
 			for (const row of rawData) {
 				const values = columns.map(col => row[col]);
 				const placeholders = columns.map((_, i) => `$${i + 1}`).join(', ');
-				await client.query(`INSERT INTO ${tableName} (${columns.join(', ')}) VALUES (${placeholders})`, values);
+                await client.query( `INSERT INTO "${tableName}" (${columns.map(c => `"${c}"`).join(', ')}) VALUES (${placeholders})`, values);
 			}
 			currentTypes.push('sql');
 			dataset.source_path.push(tableName);

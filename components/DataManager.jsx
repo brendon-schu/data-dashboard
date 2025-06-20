@@ -11,15 +11,27 @@ export default function DataManager({setActivePanel}) {
         });
         const result = await res.json();
         //console.log(result);
+        fetchData();
     };
 
-    const handleView = (dataset,index) => {
-        let json = JSON.stringify(dataset);
+    const handleDelete = async (id) => {
+        const res = await fetch('/api/delete-data', {
+            method: 'POST',
+            body: JSON.stringify({id})
+        });
+        const result = await res.json();
+        fetchData();
+        console.log(result);
+    };
+
+
+    const handleView = (dataset,index,type) => {
+        let json = JSON.stringify({dataset,type});
         localStorage.setItem('current_dataset',json);
         setActivePanel("dashboard");
     }
 
-    const convert = async (id,type) => {
+    const handleConvert = async (id,type) => {
         
         const res = await fetch('/api/convert-data', {
             method: 'POST',
@@ -29,18 +41,39 @@ export default function DataManager({setActivePanel}) {
             body: JSON.stringify({id,type})
         });
         const result = await res.json();
-        console.log(result);
+        //console.log(result);
+        fetchData();
     }
+
+    const handleExport = async (dataset,id,type) => {
+        const num = dataset.source_type.indexOf(type);
+        const filename = dataset.source_path[num];
+        const link = document.createElement('a');
+        link.href = `/api/download?file=${encodeURIComponent(filename)}`;
+        link.download = filename;
+        link.click();
+    }
+
+    const handleEdit = async (id,type) => {
+
+    }
+
+    const [openDropdown, setOpenDropdown] = useState(null); // holds index or id
+
+    const toggleDropdown = (id) => {
+      setOpenDropdown(prev => (prev === id ? null : id));
+    };
 
     const [mode, setMode] = useState("file");
     const [rows, setRows] = useState([]);
 
-    useEffect(() => {
-      const fetchData = async () => {
+    const fetchData = async () => {
         const res = await fetch('/api/getdatasets');
         const data = await res.json();
         setRows(data || []);
-      };
+    };
+
+    useEffect(() => {
       fetchData();
     }, []);
 
@@ -48,6 +81,7 @@ export default function DataManager({setActivePanel}) {
         <div className="bg-gray-100 text-gray-600 p-2 mt-4 rounded">
         <div className="p-4">
             <div className="flex">
+                <div className="flex-1 font-bold underline p-2">ID</div>
                 <div className="flex-1 font-bold underline p-2">Name</div>
                 <div className="flex-1 font-bold underline p-2">Type</div>
                 <div className="flex-1 font-bold underline p-2">Rows</div>
@@ -55,6 +89,7 @@ export default function DataManager({setActivePanel}) {
             </div>
             {rows.map((val,i) => (
                 <div className="flex" key={i}>
+                    <div className="flex-1 p-2">{val.id}</div>
                     <div className="flex-1 p-2">
                     {val.name}
                     <div>
@@ -69,7 +104,7 @@ export default function DataManager({setActivePanel}) {
                     <div className="flex-1 p-2">{val.source_type.join(", ")}
                     {(val.source_type.length < 3) && (
                         <div className="inline-block ml-4">
-                            <select onChange={(e) => {const type = e.target.value; if (type) convert(val.id, type); }} className="ml-4 border p-1 text-sm">
+                            <select onChange={(e) => {const type = e.target.value; if (type) handleConvert(val.id, type); }} className="ml-4 border p-1 text-sm">
                             <option value=''>Convert</option>
                                 {!val.source_type.includes("csv") && (
                                     <option value='csv'>Convert to CSV</option>
@@ -86,10 +121,60 @@ export default function DataManager({setActivePanel}) {
                     </div>
                     <div className="flex-1 p-2">{val.row_count}</div>
                     <div className="flex-1 p-2">
-                        <a className="text-purple-400 hover:underline cursor-pointer" onClick={() => handleView(val,i)} >View</a>
-                        <a className="text-blue-400 hover:underline cursor-pointer ml-4">Export</a>
-                        <a className="text-green-400 hover:underline cursor-pointer ml-4">Edit</a>
-                        <a className="text-red-400 hover:underline cursor-pointer ml-4">Delete</a>
+
+                        <div className="relative inline-block">
+                        <a className="text-purple-400 hover:underline cursor-pointer" onClick={()=>toggleDropdown(`view-${val.id}`)}>View</a>
+                            {openDropdown === `view-${val.id}` && (
+                                <div className="min-w-[80px] absolute bg-white p-2 border border-black z-10">
+                                {val.source_type.includes("sql") && (
+                                    <div>
+                                    <a href='#' onClick={() => handleView(val,i,"sql")}>SQL</a>
+                                    </div>
+                                )}
+                                {val.source_type.includes("csv") && (
+                                    <div>
+                                    <a href='#' onClick={() => handleView(val,i,"csv")}>CSV</a>
+                                    </div>
+                                )}
+                                {val.source_type.includes("json") && (
+                                    <div>
+                                    <a href='#' onClick={() => handleView(val,i,"json")}>JSON</a>
+                                    </div>
+                                )}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="relative inline-block">
+                            <a className="relative text-blue-400 hover:underline cursor-pointer ml-4" onClick={()=>toggleDropdown(`export-${val.id}`)}>Export</a>
+                            {openDropdown === `export-${val.id}` && (
+                                <div className="min-w-[80px] absolute bg-white p-2 border border-black z-11">
+                                {val.source_type.includes("csv") && (
+                                    <div>
+                                    <a href='#' onClick={() => handleExport(val,i,"csv")}>CSV</a>
+                                    </div>
+                                )}
+                                {val.source_type.includes("json") && (
+                                    <div>
+                                    <a href='#' onClick={() => handleExport(val,i,"json")}>JSON</a>
+                                    </div>
+                                )}
+                                </div>
+                            )}
+                        </div>
+                        {/*
+                        <div className="relative inline-block">
+                            <a className="text-green-400 hover:underline cursor-pointer ml-4" onClick={()=>toggleDropdown(`edit-${val.id}`)}>Edit</a>
+                            {openDropdown === `edit-${val.id}` && (
+                                <div className="min-w-[80px] absolute bg-white p-2 border border-black z-12">
+                                <a href='#' onClick={() => handleEdit(val,i,"sql")}>SQL</a><br />
+                                <a href='#' onClick={() => handleEdit(val,i,"csv")}>CSV</a><br />
+                                <a href='#' onClick={() => handleEdit(val,i,"json")}>JSON</a>
+                                </div>
+                            )}
+                        </div>
+                        */}
+                        <a className="text-red-400 hover:underline cursor-pointer ml-4" onClick={() => handleDelete(val.id)}>Delete</a>
                     </div>
                 </div>
             ))}
