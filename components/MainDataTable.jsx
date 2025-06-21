@@ -4,15 +4,16 @@ import {useEffect} from 'react';
 export default function MainDataTable({ data, loadTable, visibleCols }) {
 
     useEffect(() => {
-        if (localStorage.getItem("current_dataset") == null) {
-            loadTable(0,0);
-        } else {
+        var data = localStorage.getItem("current_dataset");
+        if (data) {
             const data = JSON.parse(localStorage.getItem("current_dataset"));
             const dataset = data.dataset;
             const sets = dataset.source_type;
             const type = data.type;
             const num = sets.indexOf(type);
             loadTable(dataset.id,num);
+        } else {
+            loadTable(0,0);
         }
     },[]);
 

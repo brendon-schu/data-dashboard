@@ -182,12 +182,22 @@ export default function Home() {
         loadTable(0,0);
     }, []);
 
+    const [selectedTheme,setSelectedTheme] = useState('light');
+
     useEffect(() => {
       const saved = localStorage.getItem("theme");
       if (saved) {
         document.documentElement.setAttribute("data-theme", saved);
+        setSelectedTheme(saved);
       }
     }, []);
+
+    const handleTheme = (e) => {
+        const selected = e.target.value;
+        document.documentElement.setAttribute("data-theme", selected);
+        localStorage.setItem("theme", selected);
+        setSelectedTheme(selected); 
+    };
 
     return (
         <div className="h-screen flex flex-col bg-base-100">
@@ -195,7 +205,7 @@ export default function Home() {
 				<div className="border border-primary shadow-xl rounded bg-base-300 px-6 py-4 flex items-center justify-between">
 					<h1 className="text-xl font-bold text-base-content">📊 Data Dashboard</h1>
 					<div className="flex gap-4 text-sm text-base-content">
-						<select className="select select-sm select-bordered" onChange={(e) => { const selected = e.target.value; document.documentElement.setAttribute("data-theme", selected); localStorage.setItem("theme", selected); }}>
+						<select className="select select-sm select-bordered" value={selectedTheme} onChange={handleTheme}>
 							{themes.map((theme) => (
 								<option key={theme} value={theme}>{theme}</option>
 							))}
@@ -234,7 +244,7 @@ export default function Home() {
 							)}
 							{activePanel == "data" && <DataManager setActivePanel={setActivePanel} />}
 							{activePanel == "profile" && <Profile />}
-							{activePanel == "settings" && <Settings themes={themes} />}
+							{activePanel == "settings" && <Settings themes={themes} selectedTheme={selectedTheme} handleTheme={handleTheme} />}
 							{activePanel == "log" && <Log />}
 						</div>
 					</div>

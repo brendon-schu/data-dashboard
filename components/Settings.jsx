@@ -3,20 +3,22 @@ import {useRef, useEffect, useState} from 'react';
 
 const inputClass = "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
-export default function Settings({themes}) {
+export default function Settings({themes,selectedTheme,handleTheme}) {
 
     const ambients = ["Lines","Shapes","Bouncing","Lightning"];
     const panels = ["Local","Profile","Ambience","Links","Line Chart","Pie Chart","Bar Chart","Sum","Average","Median","Calculator","Log"];
     const tools = ["Line Chart","Pie Chart","Bar Chart","Sum","Average","Median"];
 
     const [theme,setTheme] = useState('');
-    const handleTheme = (event) => {
-        setTheme(event.target.value);
-    }
 
     const [ambient,setAmbient] = useState('');
     const handleAmbient = (event) => {
         setAmbient(event.target.value);
+    }
+
+    const clearSettings = () => {
+        localStorage.setItem('current_dataset',"");
+        localStorage.setItem('theme',"");
     }
 
     const formRef = useRef();
@@ -86,19 +88,30 @@ export default function Settings({themes}) {
         setRefVals([...refVals, newlink]);
     }
 
+    const [datasets, setDatasets] = useState([]);
+
     useEffect(() => {
-        const fetchData = async () => {
-            const res = await fetch('/api/getsettings');
-            const data = await res.json();
-            setTheme(data.theme || '');
-            setAmbient(data.visual_panel || '');
-            setRefVals(data.reference_links);
-            setLeftBarVals(data.left_bar_panels);
-            setRightBarVals(data.right_bar_panels);
-            setToolbarVals(data.toolbar_tools);
-        };
         fetchData();
     }, []);
+
+
+    const fetchData = async () => {
+        const s_res = await fetch('/api/getsettings');
+        const data = await s_res.json();
+        const d_res = await fetch('/api/getdatasets');
+        const datasets = await d_res.json();
+        setDatasets(datasets);
+        setAmbient(data.visual_panel || '');
+        setRefVals(data.reference_links);
+        setLeftBarVals(data.left_bar_panels);
+        setRightBarVals(data.right_bar_panels);
+        setToolbarVals(data.toolbar_tools);
+    };
+
+    useEffect(() => {
+        setTheme(selectedTheme);
+        fetchData();
+    }, [selectedTheme]);
 
     useEffect(() => {
         for (let i=0; i<panels.length; i++) {
@@ -123,7 +136,7 @@ export default function Settings({themes}) {
         <form ref={formRef}>
             <div className="p-4">
                 Theme<br />
-                <select name="theme" value={theme} className={inputClass} onChange={handleTheme} >
+                <select name="theme" value={selectedTheme} className={inputClass} onChange={handleTheme} >
                     {themes.map((val,i) => (
                         <option key={`theme_${i}`} value={val}>{val}</option>
                     ))}
@@ -133,7 +146,10 @@ export default function Settings({themes}) {
             <div className="p-4">
                 Default Dataset<br />
                 <select name="default_dataset" className={inputClass}>
-                <option value=''>List of Sets</option>
+                <option value=''>- None -</option>
+                {datasets.map((val,i) => (
+                    <option key={`ds_${i}`} value={val.id}>{val.name}</option>
+                ))}
                 </select>
             </div>
 
@@ -190,6 +206,9 @@ export default function Settings({themes}) {
             </div>
             <div className="p-4">
                 <button onClick={update} type="button" className="btn btn-info mt-4">Save</button>
+            </div>
+            <div className="p-4">
+                <button onClick={clearSettings} type="button" className="btn btn-warning mt-4">Clear Storage</button>
             </div>
         </form>
         </div>
