@@ -59,13 +59,38 @@ There are **12 sidebar panels** available, with **8 implemented** and **4 outsta
 - Chart or graph panel
 - Dataset stats
 
-#### Remaining:
-1. 🎨 **Visual toy panel**: Fun animation (e.g., moving lines or cube)
-2. 🔗 **Reference links**: Pulled from settings and displayed as quick-access links
-3. 🧮 **Calculator panel**: Standard calculator utility (planned via library/plugin)
-4. 📜 **Audit log viewer**: Pull recent log entries once logging is implemented
+### 🔧 Remaining / Planned Features
 
----
+1. 🎨 **Visual Toy Panel**:  
+   Fun animation panel using canvas or SVG (e.g., moving lines or bouncing cube).
+
+2. 🔗 **Reference Links Panel**:  
+   Quick-access links pulled from user settings and styled for fast access.
+
+3. 🧮 **Calculator Utility**:  
+   Basic calculator using a math library, with potential for scientific mode.
+
+4. 📜 **Audit Log Viewer**:  
+   Pull recent log entries (once logging is implemented) and display them cleanly.
+
+5. 🖼 **Image Handling & Uploads**:  
+   Upload, preview, and manipulate images (e.g., crop, rotate, apply filters).
+
+6. 🎮 **Advanced UI/UX Elements**:  
+   Game-style interface elements (sliders, toggles, custom inputs) to demonstrate creative, interactive design.
+
+7. 📊 **Expanded Charts**:  
+   Click on mini charts to expand and analyze data in more detail.
+
+8. 🗃 **Data Table with CRUD Support**:  
+   Create/edit/delete dataset rows manually, or generate a table from scratch without import.
+
+9. 📂 **Simple File Manager**:  
+  Upload, view, and delete local files via a basic interface.
+
+10. 🕒 **Clock Panel**:  
+  Sidebar panel showing time/date; clicking the clock may expand a calendar or scheduler.
+
 
 ## ⚙️ Setup (Demo Use)
 

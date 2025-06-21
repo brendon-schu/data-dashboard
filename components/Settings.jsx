@@ -1,4 +1,3 @@
-
 import {useRef, useEffect, useState} from 'react';
 
 const inputClass = "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
@@ -9,24 +8,24 @@ export default function Settings({themes,selectedTheme,handleTheme}) {
     const panels = ["Local","Profile","Ambience","Links","Line Chart","Pie Chart","Bar Chart","Sum","Average","Median","Calculator","Log"];
     const tools = ["Line Chart","Pie Chart","Bar Chart","Sum","Average","Median"];
 
-    const [theme,setTheme] = useState('');
-
     const [ambient,setAmbient] = useState('');
-    const handleAmbient = (event) => {
-        setAmbient(event.target.value);
-    }
+    const [leftbarVals,setLeftbarVals] = useState([]);
+    const [rightbarVals,setRightbarVals] = useState([]);
+    const [toolbarVals,setToolbarVals] = useState([]);
+    const [refVals,setRefVals] = useState([]);
+    const [datasets, setDatasets] = useState([]);
+    const formRef = useRef();
 
     const clearSettings = () => {
         localStorage.setItem('current_dataset',"");
         localStorage.setItem('theme',"");
     }
 
-    const formRef = useRef();
     const update = async () => {
         const form = formRef.current;
         const ref_links = [...refVals];
-        const leftbar_panels = [...leftBarVals];
-        const rightbar_panels = [...rightBarVals];
+        const leftbar_panels = [...leftbarVals];
+        const rightbar_panels = [...rightbarVals];
         const toolbar_tools = [...toolbarVals];
         const body = {
           theme: form.theme.value,
@@ -45,55 +44,30 @@ export default function Settings({themes,selectedTheme,handleTheme}) {
         const result = await res.json();
     };
 
-    const [leftBarVals,setLeftBarVals] = useState([]);
-    const handleLeftChange = (i,event) => {
-        const newVals = [];
-        for (let i=0; i<panels.length; i++) {
-            if (document.getElementById("left_"+i).checked) {
-                newVals.push(document.getElementById("left_"+i).value);
-            }
+    const handleAmbient = (event) => {
+        setAmbient(event.target.value);
+    }
+
+    const handleCheckboxChange = (value, stateArray, setStateArray) => {
+        return (e) => {
+        if (e.target.checked) {
+            setStateArray([...stateArray, value]);
+        } else {
+            setStateArray(stateArray.filter(v => v !== value));
         }
-        setLeftBarVals(newVals);
-    };
-    const [rightBarVals,setRightBarVals] = useState([]);
-    const handleRightChange = (i,event) => {
-        const newVals = [];
-        for (let i=0; i<panels.length; i++) {
-            if (document.getElementById("right_"+i).checked) {
-                newVals.push(document.getElementById("right_"+i).value);
-            }
-        }
-        setRightBarVals(newVals);
+        };
     };
 
-    const [toolbarVals,setToolbarVals] = useState([]);
-    const handleToolbarChange = (i,event) => {
-        const newVals = [];
-        for (let i=0; i<tools.length; i++) {
-            if (document.getElementById("tool_"+i).checked) {
-                newVals.push(document.getElementById("tool_"+i).value);
-            }
-        }
-        setToolbarVals(newVals);
-    };
-
-    const [refVals,setRefVals] = useState([]);
     const handleRefChange = (i,event) => {
         let data = [...refVals];
         data[i] = event.target.value;
         setRefVals(data);
     };
+
     const addRefLink = () => {
         let newlink = '';
         setRefVals([...refVals, newlink]);
     }
-
-    const [datasets, setDatasets] = useState([]);
-
-    useEffect(() => {
-        fetchData();
-    }, []);
-
 
     const fetchData = async () => {
         const s_res = await fetch('/api/getsettings');
@@ -103,33 +77,14 @@ export default function Settings({themes,selectedTheme,handleTheme}) {
         setDatasets(datasets);
         setAmbient(data.visual_panel || '');
         setRefVals(data.reference_links);
-        setLeftBarVals(data.left_bar_panels);
-        setRightBarVals(data.right_bar_panels);
+        setLeftbarVals(data.left_bar_panels);
+        setRightbarVals(data.right_bar_panels);
         setToolbarVals(data.toolbar_tools);
     };
 
     useEffect(() => {
-        setTheme(selectedTheme);
         fetchData();
-    }, [selectedTheme]);
-
-    useEffect(() => {
-        for (let i=0; i<panels.length; i++) {
-            if ([...leftBarVals].includes(panels[i])) {
-                document.getElementById("left_"+i).checked = true;
-            }
-        }
-        for (let i=0; i<panels.length; i++) {
-            if ([...rightBarVals].includes(panels[i])) {
-                document.getElementById("right_"+i).checked = true;
-            }
-        }
-        for (let i=0; i<tools.length; i++) {
-            if ([...toolbarVals].includes(tools[i])) {
-                document.getElementById("tool_"+i).checked = true;
-            }
-        }
-    },[leftBarVals,rightBarVals,toolbarVals]);
+    });
 
     return (
         <div className="bg-gray-100 text-gray-600 p-2 mt-4 rounded">
@@ -177,7 +132,8 @@ export default function Settings({themes,selectedTheme,handleTheme}) {
                 <div className="flex flex-wrap gap-2 p-4">
                 {panels.map((val,i) => (
                     <div key={`left_${i}`} className="min-w-[200px]">
-                    <input type="checkbox" id={`left_${i}`} value={val} onChange={event => handleLeftChange(i,event)} /> <label htmlFor={`left_${i}`} >{val}</label>
+                    <input type="checkbox" id={`left_${i}`} value={val} checked={leftbarVals.includes(val)} onChange={handleCheckboxChange(val,leftbarVals,setLeftbarVals)} />
+                    <label htmlFor={`left_${i}`} >{val}</label>
                     </div>
                 ))}
                 </div>
@@ -188,7 +144,8 @@ export default function Settings({themes,selectedTheme,handleTheme}) {
                 <div className="flex flex-wrap gap-2 p-4">
                 {panels.map((val,i) => (
                     <div key={`right_${i}`} className="min-w-[200px]">
-                    <input type="checkbox" id={`right_${i}`} value={val} onChange={event => handleRightChange(i,event)} /> <label htmlFor={`right_${i}`} >{val}</label>
+<input type="checkbox" id={`right_${i}`} value={val} checked={rightbarVals.includes(val)} onChange={handleCheckboxChange(val,rightbarVals,setRightbarVals)} />
+                    <label htmlFor={`right_${i}`} >{val}</label>
                     </div>
                 ))}
                 </div>
@@ -199,7 +156,8 @@ export default function Settings({themes,selectedTheme,handleTheme}) {
                 <div className="flex flex-wrap gap-2 p-4">
                 {tools.map((val,i) => (
                     <div key={`tool_${i}`} className="min-w-[200px]">
-                    <input type="checkbox" id={`tool_${i}`} value={val} onChange={event => handleToolbarChange(i,event)} /> <label htmlFor={`tool_${i}`} >{val}</label>
+                    <input type="checkbox" id={`tool_${i}`} value={val} checked={toolbarVals.includes(val)} onChange={handleCheckboxChange(val,toolbarVals,setToolbarVals)} /> 
+                    <label htmlFor={`tool_${i}`} >{val}</label>
                     </div>
                 ))}
                 </div>
