@@ -3,7 +3,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { Geist, Geist_Mono } from "next/font/google";
 import LocalDetails from "@/components/LocalDetails";
 import ProfileDetails from "@/components/ProfileDetails";
-import AnimatedDecoration from "@/components/AnimatedDecoration";
 import MainDataTable from "@/components/MainDataTable";
 import Calculator from "@/components/Calculator";
 import DataFeed from "@/components/DataFeed";
@@ -166,16 +165,55 @@ export default function Home() {
     }
 
     const loadTable = async (id,num) => {
-        try {
-            const res = await fetch(`/api/load-data?id=${id}&num=${num}`);
-            const json = await res.json();
-            setDataTable(json);
-            if (json.length > 0) {
-                setVisible(Object.keys(json[0]));
+		try {
+			if (id == 0 && num == 0) {
+				// If a dataset has been selected it iwll be in current_dataset.
+				// Otherwise we can look in settings to see if there's a default_dataset.
+				var stored = localStorage.getItem("current_dataset");
+				if (stored) {
+					const data = JSON.parse(stored);
+					const dataset = data.dataset;
+					const sets = dataset.source_type;
+					const type = data.type;
+					const index = sets.indexOf(type);
+					if (dataset.id > 0 && index >=0) {
+						loadTable(dataset.id,index);
+					}
+				} else {
+					const s_res = await fetch('/api/getsettings');
+					const data = await s_res.json();
+					if (data.default_dataset) {
+						id = data.default_dataset;
+                        const res = await fetch(`/api/load-data?id=${id}&num=${num}`);
+                        const json = await res.json();
+                        if (json && json.data === "none") {
+                            setDataTable([]);
+                            return;
+                        } else {
+                            setDataTable(json);
+                            if (json.length > 0) {
+                                setVisible(Object.keys(json[0]));
+                            }
+                        }
+					} else {
+						console.warn("No dataset found in localStorage or settings.");
+					}
+				}
+                return;
+			}
+			const res = await fetch(`/api/load-data?id=${id}&num=${num}`);
+			const json = await res.json();
+            if (json && json.data === "none") {
+                setDataTable([]);
+                return;
             }
-        } catch (err) {
-            console.error('Failed to load data:', err);
-        }
+			setDataTable(json);
+			if (json.length > 0) {
+				setVisible(Object.keys(json[0]));
+			}
+		} catch (err) {
+			console.error('Failed to load data:', err);
+		}
     };
 
     useEffect(() => {

@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     const { id,num } = req.query;
 
     if (id == 0 && num == 0) {
-		return JSON.stringify({data:"none"});
+		return res.status(200).json({data:"none"});
     }
 
     const client = new Client({

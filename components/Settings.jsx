@@ -4,9 +4,9 @@ const inputClass = "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
 
 export default function Settings({themes,selectedTheme,handleTheme}) {
 
-    const ambients = ["Lines","Shapes","Bouncing","Lightning"];
+    const ambients = ["Bouncy Ball","Shapes","Lightning"];
     const panels = ["Local","Profile","Ambience","Links","Line Chart","Pie Chart","Bar Chart","Sum","Average","Median","Calculator","Log"];
-    const tools = ["Line Chart","Pie Chart","Bar Chart","Sum","Average","Median"];
+    const tools = ["Columns","Line Chart","Pie Chart","Bar Chart","Sum","Average","Median"];
 
     const [ambient,setAmbient] = useState('');
     const [leftbarVals,setLeftbarVals] = useState([]);
@@ -14,6 +14,7 @@ export default function Settings({themes,selectedTheme,handleTheme}) {
     const [toolbarVals,setToolbarVals] = useState([]);
     const [refVals,setRefVals] = useState([]);
     const [datasets, setDatasets] = useState([]);
+    const [default_dataset, setDefaultDataset] = useState('');
     const formRef = useRef();
 
     const clearSettings = () => {
@@ -42,7 +43,18 @@ export default function Settings({themes,selectedTheme,handleTheme}) {
           body: JSON.stringify(body),
         });
         const result = await res.json();
+        fetchData();
     };
+
+	const removeRefLink = (index) => {
+		const updated = [...refVals];
+		updated.splice(index, 1);
+		setRefVals(updated);
+	};
+
+    const handleDefaultDataset = (event) => {
+        setDefaultDataset(event.target.value);
+    }
 
     const handleAmbient = (event) => {
         setAmbient(event.target.value);
@@ -75,6 +87,7 @@ export default function Settings({themes,selectedTheme,handleTheme}) {
         const d_res = await fetch('/api/getdatasets');
         const datasets = await d_res.json();
         setDatasets(datasets);
+        setDefaultDataset(data.default_dataset || '');
         setAmbient(data.visual_panel || '');
         setRefVals(data.reference_links);
         setLeftbarVals(data.left_bar_panels);
@@ -84,7 +97,7 @@ export default function Settings({themes,selectedTheme,handleTheme}) {
 
     useEffect(() => {
         fetchData();
-    });
+    },[]);
 
     return (
         <div className="bg-gray-100 text-gray-600 p-2 mt-4 rounded">
@@ -100,7 +113,7 @@ export default function Settings({themes,selectedTheme,handleTheme}) {
 
             <div className="p-4">
                 Default Dataset<br />
-                <select name="default_dataset" className={inputClass}>
+                <select name="default_dataset" value={default_dataset} onChange={handleDefaultDataset} className={inputClass}>
                 <option value=''>- None -</option>
                 {datasets.map((val,i) => (
                     <option key={`ds_${i}`} value={val.id}>{val.name}</option>
@@ -117,15 +130,27 @@ export default function Settings({themes,selectedTheme,handleTheme}) {
                 </select>
             </div>
 
-            <div className="p-4">
-                Reference Links<br />
-                {refVals.map((val,i) => {
-                    return (
-                        <input type="text" className={inputClass} value={val} key={`ref_${i}`} onChange={event => handleRefChange(i, event)} />
-                    );
-                })}
-                <button onClick={addRefLink} type="button" className="btn mt-4">Add Link</button>
-            </div>
+			<div className="p-4">
+				Reference Links<br />
+				{refVals.map((val, i) => (
+					<div key={`ref_${i}`} className="flex items-center gap-2 my-2">
+						<input
+							type="text"
+							className={inputClass}
+							value={val}
+							onChange={event => handleRefChange(i, event)}
+						/>
+						<button
+							type="button"
+							onClick={() => removeRefLink(i)}
+							className="btn btn-sm btn-error"
+						>
+							✕
+						</button>
+					</div>
+				))}
+				<button onClick={addRefLink} type="button" className="btn mt-4">Add Link</button>
+			</div>
 
             <div className="p-4">
                 Left Bar Panels<br />

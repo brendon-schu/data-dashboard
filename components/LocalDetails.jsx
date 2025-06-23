@@ -5,15 +5,29 @@ export default function LocalReportPanel() {
 
     const [report, setReport] = useState(null);
 
+    const fetchData = async () => {
+        const res = await fetch('/api/getuser');
+        const data = await res.json();
+        const lat = parseFloat(data.latitude);
+        const lon = parseFloat(data.longitude);
+        if (isNaN(lat) || isNaN(lon)) {
+            setReport({
+                city: "Unknown City",
+                country: "N/A",
+                date: "—",
+                time: "—",
+                temperature: "—",
+                wind: "—",
+                error: "Set Lat/Lon coords in Profile for weather data.",
+            });
+            return;
+        }
+        const weatherRes = await fetch("/api/weather?latitude="+data.latitude+"&longitude="+data.longitude);
+        const weatherData = await weatherRes.json();
+        setReport(weatherData);
+    };
+
 	useEffect(() => {
-		const fetchData = async () => {
-			const res = await fetch('/api/getuser');
-			const data = await res.json();
-			fetch("/api/weather?latitude="+data.latitude+"&longitude="+data.longitude)
-			.then((res) => res.json())
-			.then(setReport)
-			.catch(() => setReport({ error: "Unavailable" }));
-		};
 		fetchData();
 	},[]);
 

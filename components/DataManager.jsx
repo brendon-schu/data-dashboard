@@ -1,4 +1,5 @@
 import {useRef, useEffect, useState} from 'react';
+import DatasetEditor from '@/components/DatasetEditor'
 
 export default function DataManager({setActivePanel}) {
 
@@ -24,6 +25,9 @@ export default function DataManager({setActivePanel}) {
         console.log(result);
     };
 
+    const handleOpenEdit = async (id,name,notes) => {
+        console.log(id,name,notes);
+    }
 
     const handleView = (dataset,index,type) => {
         let json = JSON.stringify({dataset,type});
@@ -162,18 +166,10 @@ export default function DataManager({setActivePanel}) {
                                 </div>
                             )}
                         </div>
-                        {/*
                         <div className="relative inline-block">
-                            <a className="text-green-400 hover:underline cursor-pointer ml-4" onClick={()=>toggleDropdown(`edit-${val.id}`)}>Edit</a>
-                            {openDropdown === `edit-${val.id}` && (
-                                <div className="min-w-[80px] absolute bg-white p-2 border border-black z-12">
-                                <a href='#' onClick={() => handleEdit(val,i,"sql")}>SQL</a><br />
-                                <a href='#' onClick={() => handleEdit(val,i,"csv")}>CSV</a><br />
-                                <a href='#' onClick={() => handleEdit(val,i,"json")}>JSON</a>
-                                </div>
-                            )}
+                        {/* <a className="text-green-400 hover:underline cursor-pointer ml-4" onClick={() => handleOpenEdit(val.id,val.name,val.notes)}>Edit</a> */}
+						<DatasetEditor val={val} />
                         </div>
-                        */}
                         <a className="text-red-400 hover:underline cursor-pointer ml-4" onClick={() => handleDelete(val.id)}>Delete</a>
                     </div>
                 </div>

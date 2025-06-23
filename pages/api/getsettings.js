@@ -1,7 +1,7 @@
-// pages/api/getuser.js
 import { Client } from 'pg';
 
 export default async function handler(req, res) {
+
 	if (req.method !== 'GET') return res.status(405).end();
 
 	const client = new Client({
@@ -13,6 +13,7 @@ export default async function handler(req, res) {
 	});
 
 	try {
+
 		await client.connect();
 
 		const result = await client.query(
@@ -26,9 +27,13 @@ export default async function handler(req, res) {
 		}
 
 		res.status(200).json(result.rows[0]);
+
 	} catch (err) {
+
 		console.error(err);
 		res.status(500).json({ error: 'Failed to fetch user' });
+
 	}
+
 }
 

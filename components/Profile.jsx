@@ -25,6 +25,7 @@ export default function Profile() {
         const result = await res.json();
     };
 
+    const [username,setUsername] = useState('');
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [job_title, setJobTitle] = useState('');
@@ -33,18 +34,20 @@ export default function Profile() {
     const [latitude, setLatitude] = useState('');
     const [longitude, setLongitude] = useState('');
 
+    const fetchData = async () => {
+        const res = await fetch('/api/getuser');
+        const data = await res.json();
+        setUsername(data.username || '');
+        setName(data.name || '');
+        setEmail(data.email || '');
+        setJobTitle(data.job_title || '');
+        setCity(data.city || '');
+        setCountry(data.country || '');
+        setLatitude(data.latitude || '');
+        setLongitude(data.longitude || '');
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
-            const res = await fetch('/api/getuser');
-            const data = await res.json();
-            setName(data.name || '');
-            setEmail(data.email || '');
-            setJobTitle(data.job_title || '');
-            setCity(data.city || '');
-            setCountry(data.country || '');
-            setLatitude(data.latitude || '');
-            setLongitude(data.longitude || '');
-        };
         fetchData();
     }, []);
 
@@ -54,7 +57,7 @@ export default function Profile() {
 
             <div className="flex-1 p-4">
                 <label className="mt-4 block">User Name</label>
-                <div className={inputClass} style={{background: "#EEE"}}>username goes here</div>
+                <div className={inputClass} style={{background: "#EEE"}}>{username}</div>
 
                 <label className="mt-4 block">Name</label>
                 <input type="text" name="name" defaultValue={name} className={inputClass} /><br />

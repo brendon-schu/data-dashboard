@@ -1,4 +1,4 @@
-
+import {useEffect, useState} from 'react';
 import SidebarPanel from "@/components/SidebarPanel"
 import LineChartPanel from "@/components/LineChartPanel"
 import PieChartPanel from "@/components/PieChartPanel"
@@ -9,30 +9,46 @@ import MedianPanel from "@/components/MedianPanel"
 import Calculator from "@/components/Calculator"
 
 export default function RightSidebar({data,lineChartCols,pieChartCols,barChartCols,sumCols,avgCols,medianCols}) {
+
+    // for reference
+    //const panels = ["Local","Profile","Ambience","Links","Line Chart","Pie Chart","Bar Chart","Sum","Average","Median","Calculator","Log"];
+    const [rightbarPanels,setRightbarPanels] = useState([]);
+    const fetchData = async () => {
+        const s_res = await fetch('/api/getsettings');
+        const data = await s_res.json();
+        setRightbarPanels(data.right_bar_panels);
+    }
+
+    useEffect(() => {
+        fetchData();
+    },[]);
+
     return (
         <>
-            <SidebarPanel>
-                <LineChartPanel data={data} columns={lineChartCols} />
-            </SidebarPanel>
-            <SidebarPanel>
-                <PieChartPanel data={data} pieChartCols={pieChartCols} />
-            </SidebarPanel>
-            <SidebarPanel>
-                <BarChartPanel data={data} barChartCols={barChartCols} />
-            </SidebarPanel>
-            <SidebarPanel>
-                <SumPanel data={data} sumCols={sumCols} />
-            </SidebarPanel>
-            <SidebarPanel>
-                <AvgPanel data={data} avgCols={avgCols} />
-            </SidebarPanel>
-            <SidebarPanel>
-                <MedianPanel data={data} medianCols={medianCols} />
-            </SidebarPanel>
-            <Calculator />
-            <SidebarPanel>
-            Log
-            </SidebarPanel>
+            {rightbarPanels.includes("Line Chart") &&
+                <SidebarPanel> <LineChartPanel data={data} columns={lineChartCols} /> </SidebarPanel>
+            }
+            {rightbarPanels.includes("Pie Chart") &&
+                <SidebarPanel> <PieChartPanel data={data} pieChartCols={pieChartCols} /> </SidebarPanel>
+            }
+            {rightbarPanels.includes("Bar Chart") &&
+                <SidebarPanel> <BarChartPanel data={data} barChartCols={barChartCols} /> </SidebarPanel>
+            }
+            {rightbarPanels.includes("Sum") &&
+                <SidebarPanel> <SumPanel data={data} sumCols={sumCols} /> </SidebarPanel>
+            }
+            {rightbarPanels.includes("Average") &&
+                <SidebarPanel> <AvgPanel data={data} avgCols={avgCols} /> </SidebarPanel>
+            }
+            {rightbarPanels.includes("Median") &&
+                <SidebarPanel> <MedianPanel data={data} medianCols={medianCols} /> </SidebarPanel>
+            }
+            {rightbarPanels.includes("Calculator") &&
+                <Calculator />
+            }
+            {rightbarPanels.includes("Log") &&
+                <SidebarPanel> Log </SidebarPanel>
+            }
         </>
     );
 }
