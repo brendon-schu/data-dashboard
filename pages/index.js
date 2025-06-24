@@ -21,9 +21,10 @@ import SidebarPanel from "@/components/SidebarPanel"
 import ToolbarPanel from "@/components/ToolbarPanel"
 import LeftSidebar from "@/components/LeftSidebar"
 import RightSidebar from "@/components/RightSidebar"
+import { audit_log } from '@/utils/audit';
+import toast from 'react-hot-toast';
 
 // -- Login and Installation checks --
-
 export async function getServerSideProps(context) {
 
 	const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
@@ -49,8 +50,9 @@ export async function getServerSideProps(context) {
 }
 
 const handleLogout = async () => {
-  await fetch('/api/logout');
-  window.location.href = '/'; 
+    audit_log(1,"Logged out.");
+    await fetch('/api/logout');
+    window.location.href = '/'; 
 };
 
 const geistSans = Geist({
@@ -75,16 +77,19 @@ export default function Home() {
     const [avgCols, setAvgCols] = useState([]);
     const [medianCols, setMedianCols] = useState([]);
     const [today, setToday] = useState("");
+    const [selectedTheme,setSelectedTheme] = useState('light');
 
     const themes = ["light","dark","cupcake","bumblebee","emerald","corporate","retro","cyberpunk",
                     "garden","lofi","pastel","wireframe","luxury","autumn","business","lemonade",
                     "coffee","nord"];
 
     useEffect(() => {
+        toast.success("Welcome!");
         setToday(new Date().toLocaleDateString());
     }, []);
 
     function toggleLineChartCol(col) {
+        audit_log(1,"Toggled Line Chart.");
         setLineChartCols(prev => {
             if (prev.includes(col)) {
               return prev.filter(c => c !== col);
@@ -97,6 +102,7 @@ export default function Home() {
     }
 
     function togglePieChartCol(col) {
+        audit_log(1,"Toggled Pie Chart.");
         setPieChartCols(prev => {
             if (prev.includes(col)) return []; // deselect if already selected
             return [col]; // only allow one selection
@@ -104,18 +110,21 @@ export default function Home() {
     }
 
     function toggleSumCol(col) {
+        audit_log(1,"Set Sum Column.");
         setSumCols(prev => {
             if (prev.includes(col)) return []; // deselect if already selected
             return [col]; // only allow one selection
         });
     }
     function toggleAvgCol(col) {
+        audit_log(1,"Set Avg Column.");
         setAvgCols(prev => {
             if (prev.includes(col)) return []; // deselect if already selected
             return [col]; // only allow one selection
         });
     }
     function toggleMedianCol(col) {
+        audit_log(1,"Set Median Column.");
         setMedianCols(prev => {
             if (prev.includes(col)) return []; // deselect if already selected
             return [col]; // only allow one selection
@@ -123,6 +132,7 @@ export default function Home() {
     }
 
     function toggleBarChartCol(col) {
+        audit_log(1,"Set Bar Chart.");
         setBarChartCols(prev => {
             if (prev.includes(col)) return []; // deselect if already selected
             return [col]; // only allow one selection
@@ -217,10 +227,9 @@ export default function Home() {
     };
 
     useEffect(() => {
+        audit_log(1,"Viewed Dashboard.");
         loadTable(0,0);
     }, []);
-
-    const [selectedTheme,setSelectedTheme] = useState('light');
 
     useEffect(() => {
       const saved = localStorage.getItem("theme");
@@ -244,9 +253,9 @@ export default function Home() {
 					<h1 className="text-xl font-bold text-base-content">📊 Data Dashboard</h1>
 					<div className="flex gap-4 text-sm text-base-content">
 						<select className="select select-sm select-bordered" value={selectedTheme} onChange={handleTheme}>
-							{themes.map((theme) => (
-								<option key={theme} value={theme}>{theme}</option>
-							))}
+                        {themes.map((theme) => (
+                            <option key={theme} value={theme}>{theme}</option>
+                        ))}
 						</select>
 						<span>Version 1.0</span>
 						<span>{today}</span>

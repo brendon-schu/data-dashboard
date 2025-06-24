@@ -1,4 +1,6 @@
 import {useRef, useEffect, useState} from 'react';
+import { audit_log } from '@/utils/audit';
+import toast from 'react-hot-toast';
 
 const inputClass = "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
@@ -17,9 +19,10 @@ export default function Settings({themes,selectedTheme,handleTheme}) {
     const [default_dataset, setDefaultDataset] = useState('');
     const formRef = useRef();
 
-    const clearSettings = () => {
+    const clearStorage = () => {
         localStorage.setItem('current_dataset',"");
         localStorage.setItem('theme',"");
+        toast.success("Local storage cleared.");
     }
 
     const update = async () => {
@@ -43,6 +46,12 @@ export default function Settings({themes,selectedTheme,handleTheme}) {
           body: JSON.stringify(body),
         });
         const result = await res.json();
+        if (result.success) {
+            toast.success("Settings saved.");
+        } else {
+            toast.error("Error with save. Try again or contact support.");
+        }
+        audit_log(1,'Updated Settings.');
         fetchData();
     };
 
@@ -96,6 +105,7 @@ export default function Settings({themes,selectedTheme,handleTheme}) {
     };
 
     useEffect(() => {
+        audit_log(1,'Viewed Settings.');
         fetchData();
     },[]);
 
@@ -191,7 +201,7 @@ export default function Settings({themes,selectedTheme,handleTheme}) {
                 <button onClick={update} type="button" className="btn btn-info mt-4">Save</button>
             </div>
             <div className="p-4">
-                <button onClick={clearSettings} type="button" className="btn btn-warning mt-4">Clear Storage</button>
+                <button onClick={clearStorage} type="button" className="btn btn-warning mt-4">Clear Storage</button>
             </div>
         </form>
         </div>

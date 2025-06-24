@@ -1,7 +1,13 @@
 import {useRef, useEffect, useState} from 'react';
 import DatasetEditor from '@/components/DatasetEditor'
+import { audit_log } from '@/utils/audit';
+import toast from 'react-hot-toast';
 
 export default function DataManager({setActivePanel}) {
+
+    const [openDropdown, setOpenDropdown] = useState(null); // holds index or id
+    const [mode, setMode] = useState("file");
+    const [rows, setRows] = useState([]);
 
     const handleSubmit = async (e) => {
         e.preventDefault(); 
@@ -11,8 +17,14 @@ export default function DataManager({setActivePanel}) {
             body: formData,
         });
         const result = await res.json();
-        //console.log(result);
+        console.log(result);
         fetchData();
+        audit_log(1,"Data Manager: Uploaded data.");
+        if (result.success) {
+            toast.success("Successful upload.");
+        } else {
+            toast.error("Upload failed, please check the data.");
+        }
     };
 
     const handleDelete = async (id) => {
@@ -22,12 +34,14 @@ export default function DataManager({setActivePanel}) {
         });
         const result = await res.json();
         fetchData();
-        console.log(result);
+        audit_log(1,"Data Manager: Deleted data.");
+        //console.log(result);
+        if (result.success) {
+            toast.success("Successful deletion.");
+        } else {
+            toast.error("Deletion failed, please check the data.");
+        }
     };
-
-    const handleOpenEdit = async (id,name,notes) => {
-        console.log(id,name,notes);
-    }
 
     const handleView = (dataset,index,type) => {
         let json = JSON.stringify({dataset,type});
@@ -46,7 +60,14 @@ export default function DataManager({setActivePanel}) {
         });
         const result = await res.json();
         //console.log(result);
+        if (result.success) {
+            toast.success("Successful conversion.");
+        } else {
+            toast.error("Conversion failed, please check the data.");
+        }
         fetchData();
+        audit_log(1,"Data Manager: Converted data.");
+
     }
 
     const handleExport = async (dataset,id,type) => {
@@ -56,20 +77,12 @@ export default function DataManager({setActivePanel}) {
         link.href = `/api/download?file=${encodeURIComponent(filename)}`;
         link.download = filename;
         link.click();
+        audit_log(1,"Data Manager: Exported data.");
     }
-
-    const handleEdit = async (id,type) => {
-
-    }
-
-    const [openDropdown, setOpenDropdown] = useState(null); // holds index or id
 
     const toggleDropdown = (id) => {
       setOpenDropdown(prev => (prev === id ? null : id));
     };
-
-    const [mode, setMode] = useState("file");
-    const [rows, setRows] = useState([]);
 
     const fetchData = async () => {
         const res = await fetch('/api/getdatasets');
@@ -78,7 +91,8 @@ export default function DataManager({setActivePanel}) {
     };
 
     useEffect(() => {
-      fetchData();
+        audit_log(1,"Viewed Data Manager.");
+        fetchData();
     }, []);
 
     return (
@@ -167,7 +181,6 @@ export default function DataManager({setActivePanel}) {
                             )}
                         </div>
                         <div className="relative inline-block">
-                        {/* <a className="text-green-400 hover:underline cursor-pointer ml-4" onClick={() => handleOpenEdit(val.id,val.name,val.notes)}>Edit</a> */}
 						<DatasetEditor val={val} />
                         </div>
                         <a className="text-red-400 hover:underline cursor-pointer ml-4" onClick={() => handleDelete(val.id)}>Delete</a>

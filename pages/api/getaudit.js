@@ -1,3 +1,4 @@
+// pages/api/getuser.js
 import { Client } from 'pg';
 
 export default async function handler(req, res) {
@@ -14,14 +15,12 @@ export default async function handler(req, res) {
 
 	try {
 		await client.connect();
-		const result = await client.query(
-			`SELECT username, name, email, job_title, city, country, latitude, longitude FROM users WHERE id = 1`
-		);
+		const result = await client.query(`SELECT * FROM activity_log ORDER BY timestamp DESC LIMIT 10;`);
 		await client.end();
 		if (result.rows.length === 0) {
-			return res.status(404).json({ error: 'User not found' });
+			return res.status(404).json({ error: 'Data not found' });
 		}
-		res.status(200).json(result.rows[0]);
+		res.status(200).json(result.rows);
 	} catch (err) {
 		console.error(err);
 		res.status(500).json({ error: 'Failed to fetch user' });

@@ -7,6 +7,7 @@ import SumPanel from "@/components/SumPanel"
 import AvgPanel from "@/components/AvgPanel"
 import MedianPanel from "@/components/MedianPanel"
 import Calculator from "@/components/Calculator"
+import LogPanel from "@/components/LogPanel"
 
 export default function RightSidebar({data,lineChartCols,pieChartCols,barChartCols,sumCols,avgCols,medianCols}) {
 
@@ -47,7 +48,7 @@ export default function RightSidebar({data,lineChartCols,pieChartCols,barChartCo
                 <Calculator />
             }
             {rightbarPanels.includes("Log") &&
-                <SidebarPanel> Log </SidebarPanel>
+                <SidebarPanel> <LogPanel /> </SidebarPanel>
             }
         </>
     );

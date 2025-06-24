@@ -5,15 +5,14 @@ export default function ProfileDetails() {
 
     const [user,setUser] = useState(null);
 
+    const fetchData = async () => {
+        const res = await fetch('/api/getuser');
+        const data = await res.json();
+        setUser(data);
+    };
 	useEffect(() => {
-		const fetchData = async () => {
-			const res = await fetch('/api/getuser');
-			const data = await res.json();
-            setUser(data);
-		};
 		fetchData();
 	},[]);
-
 
     return (
         <SidebarPanel>

@@ -1,4 +1,6 @@
 import {useRef, useEffect, useState} from 'react';
+import { audit_log } from '@/utils/audit';
+import toast from 'react-hot-toast';
 
 const inputClass = "w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
 
@@ -22,7 +24,13 @@ export default function Profile() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         });
+        audit_log(1,"Updated Profile.");
         const result = await res.json();
+        if (result.success) {
+            toast.success("Profile updated.");
+        } else {
+            toast.error("Profile updated failed.");
+        }
     };
 
     const [username,setUsername] = useState('');
@@ -48,6 +56,7 @@ export default function Profile() {
     };
 
     useEffect(() => {
+        audit_log(1,"Viewed Profile.");
         fetchData();
     }, []);
 
